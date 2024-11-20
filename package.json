@@ -17,7 +17,11 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "typeorm:ts": "ts-node ./node_modules/typeorm/cli.js",
+    "migration:create": "wrap () { yarn typeorm:ts migration:create ./typeorm/migrations/$@ | cat; }; wrap",
+    "migration:run": "yarn typeorm:ts migration:run -- -d ./typeorm/data-source.ts",
+    "migration:revert": "yarn typeorm:ts migration:revert -- -d ./typeorm/data-source.ts"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",
@@ -25,10 +29,13 @@
     "@nestjs/core": "^10.0.0",
     "@nestjs/platform-express": "^10.0.0",
     "@nestjs/swagger": "^8.0.7",
+    "@nestjs/typeorm": "^10.0.2",
     "keycloak-connect": "^26.0.5",
     "nest-keycloak-connect": "^1.10.1",
+    "pg": "^8.13.1",
     "reflect-metadata": "^0.2.0",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "typeorm": "^0.3.20"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",
