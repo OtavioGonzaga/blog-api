@@ -1,17 +1,28 @@
-import { Controller, HttpStatus } from '@nestjs/common';
-import { UsersService } from './users.service';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, HttpStatus, Post } from '@nestjs/common';
+import {
+	ApiBearerAuth,
+	ApiBody,
+	ApiOperation,
+	ApiResponse,
+	ApiTags,
+} from '@nestjs/swagger';
+import { Resource } from 'nest-keycloak-connect';
 import { CreateUserDto } from './dtos/create-user.dto';
+import { UsersService } from './users.service';
 
-@Controller('users')
 @ApiTags('Users')
+@Controller('/users')
+@Resource('users')
+@ApiBearerAuth('access_token')
 export class UsersController {
 	constructor(private readonly usersService: UsersService) {}
 
+	@Post()
 	@ApiOperation({ summary: 'Create an user' })
 	@ApiResponse({ status: HttpStatus.CREATED })
 	@ApiResponse({ status: HttpStatus.BAD_REQUEST })
-	async createUser(createUserDto: CreateUserDto) {
+	@ApiBody({ type: CreateUserDto })
+	async createUser(@Body() createUserDto: CreateUserDto) {
 		return await this.usersService.createUser(createUserDto);
 	}
 }

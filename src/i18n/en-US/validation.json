@@ -1,0 +1,8 @@
+{
+	"IS_STRING": "The field \"{property}\" with value \"{value}\" must be a string",
+	"IS_EMAIL": "The field \"{property}\" with value \"{value}\" must be a valid email address",
+	"MIN_LENGTH": "The field \"{property}\" with value \"{value}\" must be at least {constraints.0} characters",
+	"MAX_LENGTH": "The field \"{property}\" with value \"{value}\" must be less than {constraints.0} characters",
+	"MATCHES": "The field \"{property}\" with value \"{value}\" is invalid",
+	"IS_ENUM": "The field \"{property}\" with value \"{value}\" must be one of the following values: {enum}"
+}

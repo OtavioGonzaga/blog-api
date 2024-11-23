@@ -17,12 +17,12 @@ import { AppDataSource } from 'typeorm/data-source';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
-import { KeycloakService } from './keycloak/keycloak.service';
 import { PostsModule } from './posts/posts.module';
 import { UsersModule } from './users/users.module';
 
 @Module({
 	imports: [
+		UsersModule,
 		ConfigModule.forRoot({ isGlobal: true }),
 		KeycloakConnectModule.register({
 			authServerUrl: process.env.KEYCLOAK_URL,
@@ -31,9 +31,10 @@ import { UsersModule } from './users/users.module';
 			secret: process.env.KEYCLOAK_CLIENT_SECRET,
 			policyEnforcement: PolicyEnforcementMode.PERMISSIVE,
 			tokenValidation: TokenValidation.ONLINE,
+			useNestLogger: false,
 		}),
 		I18nModule.forRoot({
-			fallbackLanguage: 'pt-BR',
+			fallbackLanguage: 'en-US',
 			loaderOptions: {
 				path: path.join(__dirname, '/i18n/'),
 				watch: true,
@@ -46,7 +47,6 @@ import { UsersModule } from './users/users.module';
 		}),
 		TypeOrmModule.forRoot(AppDataSource.options),
 		JwtModule,
-		UsersModule,
 		PostsModule,
 		AuthModule,
 	],
@@ -65,7 +65,6 @@ import { UsersModule } from './users/users.module';
 			provide: APP_GUARD,
 			useClass: RoleGuard,
 		},
-		KeycloakService,
 	],
 })
 export class AppModule {}
