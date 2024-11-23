@@ -1,6 +1,5 @@
-import { DataSource } from 'typeorm';
 import * as dotenv from 'dotenv';
-import { Logger } from '@nestjs/common';
+import { DataSource } from 'typeorm';
 dotenv.config();
 
 export const AppDataSource = new DataSource({
@@ -15,5 +14,5 @@ export const AppDataSource = new DataSource({
 });
 
 AppDataSource.initialize().catch((err) => {
-  Logger.error('Error during Data Source initialization:\n', err);
+  console.error('Error during Data Source initialization:\n', err);
 });
