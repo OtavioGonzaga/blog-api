@@ -6,6 +6,7 @@ import { UserRoles } from 'src/users/enums/user-roles.enum';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { TokenResponseDto } from './dtos/token-response.dto';
 import { RequiredActions } from './enums/required-actions.enum';
+import { UpdateUserDto } from './dtos/update-user.dto';
 
 @Injectable()
 export class KeycloakService {
@@ -72,7 +73,14 @@ export class KeycloakService {
 		).data;
 	}
 
-	public async createUser({ username, email, name, enabled }: CreateUserDto) {
+	public async createUser({
+		username,
+		email,
+		name,
+		enabled,
+		emailVerified,
+		requiredActions,
+	}: CreateUserDto) {
 		return await this.requestToKeycloak({
 			url: `${process.env.KEYCLOAK_URL}/admin/realms/${process.env.KEYCLOAK_REALM}/users`,
 			method: HttpMethod.POST,
@@ -81,17 +89,20 @@ export class KeycloakService {
 				username,
 				email,
 				enabled: enabled ?? true,
-				requiredActions: [RequiredActions.UPDATE_PASSWORD],
-				emailVerified: true,
+				requiredActions,
+				emailVerified: emailVerified ?? false,
 			},
 		});
 	}
 
-	public updateUserName(id: string, name: string) {
+	public updateUser(id: string, { email, name }: UpdateUserDto) {
 		return this.requestToKeycloak({
 			url: `${process.env.KEYCLOAK_URL}/admin/realms/${process.env.KEYCLOAK_REALM}/users/${id}`,
 			method: HttpMethod.PUT,
-			data: { attributes: { name } },
+			data: {
+				attributes: { name },
+				email,
+			},
 		});
 	}
 
@@ -121,6 +132,14 @@ export class KeycloakService {
 		return this.requestToKeycloak({
 			url: `${process.env.KEYCLOAK_URL}/admin/realms/${process.env.KEYCLOAK_REALM}/users/${id}`,
 			method: HttpMethod.DELETE,
+		});
+	}
+
+	public sendExecuteActionsEmail(id: string, actions: RequiredActions[]) {
+		return this.requestToKeycloak({
+			url: `${process.env.KEYCLOAK_URL}/admin/realms/${process.env.KEYCLOAK_REALM}/users/${id}/execute-actions-email?redirect_uri=${encodeURIComponent(process.env.FRONTEND_URL).replaceAll('"', '')}&client_id=${process.env.KEYCLOAK_CLIENT_ID}`,
+			method: HttpMethod.PUT,
+			data: actions,
 		});
 	}
 }

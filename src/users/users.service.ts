@@ -1,4 +1,10 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+	ConflictException,
+	HttpStatus,
+	Injectable,
+	Logger,
+	NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { I18nService } from 'nestjs-i18n';
 import { I18nTranslations } from 'src/generated/i18n.generated';
@@ -8,6 +14,8 @@ import { CreateUserDto } from './dtos/create-user.dto';
 import { UpdateUserDto } from './dtos/update-user.dto';
 import { User } from './entities/user.entity';
 import { UserRoles } from './enums/user-roles.enum';
+import { RequiredActions } from 'src/keycloak/enums/required-actions.enum';
+import { AxiosError } from 'axios';
 
 @Injectable()
 export class UsersService {
@@ -47,34 +55,74 @@ export class UsersService {
 		name,
 		role,
 	}: CreateUserDto): Promise<User> {
-		const keycloakId: string = (
-			await this.keycloakService.createUser({
-				email,
-				username,
-				name,
-			})
-		).headers.location
-			.split('/')
-			.pop();
-
-		const newUser = this.usersRepository.create({
-			keycloakId,
-			email,
-			name,
-			role,
-			username,
-		});
-
 		try {
-			if (role === UserRoles.ADMIN)
-				await this.keycloakService.assingUserRole(
-					keycloakId,
-					UserRoles.ADMIN,
+			const keycloakId: string = (
+				await this.keycloakService.createUser({
+					email,
+					username,
+					name,
+					requiredActions: [
+						RequiredActions.UPDATE_PASSWORD,
+						RequiredActions.VERIFY_EMAIL,
+					],
+				})
+			).headers.location
+				.split('/')
+				.pop();
+
+			const newUser = this.usersRepository.create({
+				keycloakId,
+				email,
+				name,
+				role,
+				username,
+			});
+
+			try {
+				const promises = [];
+
+				if (role === UserRoles.ADMIN)
+					promises.push(
+						this.keycloakService.assingUserRole(
+							keycloakId,
+							UserRoles.ADMIN,
+						),
+					);
+
+				promises.push(
+					this.keycloakService.sendExecuteActionsEmail(
+						newUser.keycloakId,
+						[
+							RequiredActions.UPDATE_PASSWORD,
+							RequiredActions.VERIFY_EMAIL,
+						],
+					),
 				);
 
-			return await this.usersRepository.save(newUser);
+				promises.push(this.usersRepository.save(newUser));
+
+				await Promise.all(promises);
+
+				return promises.pop();
+			} catch (error) {
+				this.keycloakService.deleteUser(keycloakId);
+
+				this.logger.error(error);
+
+				throw error;
+			}
 		} catch (error) {
-			this.keycloakService.deleteUser(keycloakId);
+			if (
+				error instanceof AxiosError &&
+				error.status === HttpStatus.CONFLICT
+			)
+				throw new ConflictException(
+					this.i18n.t('errors.ALREADY_EXISTS', {
+						args: { entity: this.i18n.t('t.USERS.USER') },
+					}),
+				);
+
+			this.logger.error(error);
 
 			this.logger.error(error);
 
@@ -107,10 +155,10 @@ export class UsersService {
 				);
 
 			if (data.name)
-				await this.keycloakService.updateUserName(
-					user.keycloakId,
-					data.name,
-				);
+				await this.keycloakService.updateUser(user.keycloakId, {
+					name: data.name,
+					email: user.email,
+				});
 
 			try {
 				return await this.usersRepository.save(userUpdated);

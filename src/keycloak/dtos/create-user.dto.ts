@@ -1,16 +1,15 @@
-import { IsBoolean, IsEmail, IsOptional, IsString } from 'class-validator';
+import { RequiredActions } from '../enums/required-actions.enum';
 
 export class CreateUserDto {
-	@IsString()
 	username: string;
 
-	@IsEmail()
 	email: string;
 
-	@IsString()
 	name: string;
 
-	@IsBoolean()
-	@IsOptional()
 	enabled?: boolean;
+
+	requiredActions?: RequiredActions[];
+
+	emailVerified?: boolean;
 }

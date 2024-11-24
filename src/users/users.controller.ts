@@ -37,7 +37,7 @@ export class UsersController {
 
 	@Get()
 	@ApiOperation({ summary: 'Get all users' })
-	@ApiResponse({ status: HttpStatus.OK, type: Array<User> })
+	@ApiResponse({ status: HttpStatus.OK, type: [User] })
 	async getUsers(): Promise<User[]> {
 		return this.usersService.getUsers();
 	}
@@ -72,6 +72,7 @@ export class UsersController {
 	@ApiOperation({ summary: 'Create an user' })
 	@ApiResponse({ status: HttpStatus.CREATED, type: User })
 	@ApiResponse({ status: HttpStatus.BAD_REQUEST })
+	@ApiResponse({ status: HttpStatus.CONFLICT })
 	@ApiBody({ type: CreateUserDto })
 	createUser(@Body() createUserDto: CreateUserDto): Promise<User> {
 		return this.usersService.createUser(createUserDto);

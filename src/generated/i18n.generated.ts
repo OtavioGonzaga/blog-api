@@ -7,6 +7,7 @@ import { Path } from "nestjs-i18n";
 export type I18nTranslations = {
     "errors": {
         "NOT_FOUND": string;
+        "ALREADY_EXISTS": string;
     };
     "t": {
         "USERS": {

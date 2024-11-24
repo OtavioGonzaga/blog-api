@@ -1,3 +1,4 @@
 {
-	"NOT_FOUND": "{entity} não encontrado(a)"
+	"NOT_FOUND": "{entity} não encontrado(a)",
+	"ALREADY_EXISTS": "{entity} já existe"
 }

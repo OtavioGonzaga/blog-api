@@ -24,7 +24,7 @@ export class User {
 	@Column({ unique: true })
 	email: string;
 
-	@ApiProperty()
+	@ApiProperty({ enum: UserRoles })
 	@Column({ enum: UserRoles, default: 'standard' })
 	role: string;
 
