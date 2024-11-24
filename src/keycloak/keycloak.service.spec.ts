@@ -35,6 +35,15 @@ describe('KeycloakService', () => {
 		expect(response.status).toBe(HttpStatus.CREATED);
 	});
 
+	it('should update user name in keycloak', async () => {
+		const response = await service.updateUserName(
+			keycloakId,
+			'new updated user',
+		);
+
+		expect(response.status).toBe(HttpStatus.NO_CONTENT);
+	});
+
 	it('should assign a role to user in keycloak', async () => {
 		const response = await service.assingUserRole(
 			keycloakId,

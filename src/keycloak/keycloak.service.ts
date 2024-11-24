@@ -87,11 +87,19 @@ export class KeycloakService {
 		});
 	}
 
+	public updateUserName(id: string, name: string) {
+		return this.requestToKeycloak({
+			url: `${process.env.KEYCLOAK_URL}/admin/realms/${process.env.KEYCLOAK_REALM}/users/${id}`,
+			method: HttpMethod.PUT,
+			data: { attributes: { name } },
+		});
+	}
+
 	public async assingUserRole(id: string, role: UserRoles) {
 		const roles: { id: string; name: string }[] =
 			await this.getRealmRoles();
 
-		return await this.requestToKeycloak({
+		return this.requestToKeycloak({
 			url: `${process.env.KEYCLOAK_URL}/admin/realms/${process.env.KEYCLOAK_REALM}/users/${id}/role-mappings/realm`,
 			method: HttpMethod.POST,
 			data: [roles.find((r) => r.name === role)],
@@ -102,15 +110,15 @@ export class KeycloakService {
 		const roles: { id: string; name: string }[] =
 			await this.getRealmRoles();
 
-		return await this.requestToKeycloak({
+		return this.requestToKeycloak({
 			url: `${process.env.KEYCLOAK_URL}/admin/realms/${process.env.KEYCLOAK_REALM}/users/${id}/role-mappings/realm`,
 			method: HttpMethod.DELETE,
 			data: [roles.find((r) => r.name === role)],
 		});
 	}
 
-	public async deleteUser(id: string) {
-		return await this.requestToKeycloak({
+	public deleteUser(id: string) {
+		return this.requestToKeycloak({
 			url: `${process.env.KEYCLOAK_URL}/admin/realms/${process.env.KEYCLOAK_REALM}/users/${id}`,
 			method: HttpMethod.DELETE,
 		});

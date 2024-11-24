@@ -7,6 +7,7 @@ import { EntityNotFoundError, Repository } from 'typeorm';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { UpdateUserDto } from './dtos/update-user.dto';
 import { User } from './entities/user.entity';
+import { UserRoles } from './enums/user-roles.enum';
 
 @Injectable()
 export class UsersService {
@@ -65,6 +66,12 @@ export class UsersService {
 		});
 
 		try {
+			if (role === UserRoles.ADMIN)
+				await this.keycloakService.assingUserRole(
+					keycloakId,
+					UserRoles.ADMIN,
+				);
+
 			return await this.usersRepository.save(newUser);
 		} catch (error) {
 			this.keycloakService.deleteUser(keycloakId);
@@ -76,11 +83,66 @@ export class UsersService {
 	}
 
 	async updateUser(id: string, data: UpdateUserDto): Promise<User> {
-		const userUpdated = this.usersRepository.create({ id, ...data });
-
 		try {
-			return await this.usersRepository.save(userUpdated);
+			const userUpdated = this.usersRepository.create({ id, ...data });
+
+			const user = await this.usersRepository.findOneByOrFail({ id });
+
+			if (
+				user.role !== UserRoles.STANDARD &&
+				data.role === UserRoles.ADMIN
+			)
+				await this.keycloakService.assingUserRole(
+					user.keycloakId,
+					UserRoles.ADMIN,
+				);
+
+			if (
+				user.role === UserRoles.ADMIN &&
+				data.role === UserRoles.STANDARD
+			)
+				await this.keycloakService.removeUserRole(
+					user.keycloakId,
+					UserRoles.ADMIN,
+				);
+
+			if (data.name)
+				await this.keycloakService.updateUserName(
+					user.keycloakId,
+					data.name,
+				);
+
+			try {
+				return await this.usersRepository.save(userUpdated);
+			} catch (error) {
+				if (
+					user.role === UserRoles.STANDARD &&
+					data.role === UserRoles.ADMIN
+				)
+					await this.keycloakService.removeUserRole(
+						user.keycloakId,
+						UserRoles.ADMIN,
+					);
+
+				if (
+					user.role === UserRoles.ADMIN &&
+					data.role === UserRoles.STANDARD
+				)
+					await this.keycloakService.assingUserRole(
+						user.keycloakId,
+						UserRoles.ADMIN,
+					);
+
+				throw error;
+			}
 		} catch (error) {
+			if (error instanceof EntityNotFoundError)
+				throw new NotFoundException(
+					this.i18n.t('errors.NOT_FOUND', {
+						args: { entity: this.i18n.t('t.USERS.USER') },
+					}),
+				);
+
 			this.logger.error(error);
 
 			throw error;
