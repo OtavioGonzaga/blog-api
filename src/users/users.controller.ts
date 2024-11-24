@@ -2,7 +2,9 @@ import {
 	BadRequestException,
 	Body,
 	Controller,
+	Delete,
 	Get,
+	HttpCode,
 	HttpStatus,
 	Param,
 	ParseUUIDPipe,
@@ -100,5 +102,32 @@ export class UsersController {
 		@Body() updateUserDto: UpdateUserDto,
 	) {
 		return this.usersService.updateUser(id, updateUserDto);
+	}
+
+	@Delete(':id')
+	@HttpCode(HttpStatus.NO_CONTENT)
+	@ApiOperation({ summary: 'Delete an user' })
+	@ApiResponse({ status: HttpStatus.NO_CONTENT })
+	@ApiResponse({ status: HttpStatus.BAD_REQUEST })
+	async deleteUser(
+		@Param(
+			'id',
+			new ParseUUIDPipe({
+				exceptionFactory: () => {
+					const i18n = I18nContext.current<I18nTranslations>();
+					return new BadRequestException(
+						i18n.t('validation.IS_UUID', {
+							lang: I18nContext.current().lang,
+							args: {
+								property: 'id',
+							},
+						}),
+					);
+				},
+			}),
+		)
+		id: string,
+	) {
+		await this.usersService.deleteUser(id);
 	}
 }

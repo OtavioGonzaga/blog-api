@@ -151,8 +151,23 @@ export class UsersService {
 
 	async deleteUser(id: string): Promise<void> {
 		try {
-			await this.usersRepository.delete(id);
+			const { keycloakId } = await this.usersRepository.findOneOrFail({
+				where: { id },
+				select: { keycloakId: true },
+			});
+
+			await Promise.all([
+				this.keycloakService.deleteUser(keycloakId),
+				this.usersRepository.delete(id),
+			]);
 		} catch (err) {
+			if (err instanceof EntityNotFoundError)
+				throw new NotFoundException(
+					this.i18n.t('errors.NOT_FOUND', {
+						args: { entity: this.i18n.t('t.USERS.USER') },
+					}),
+				);
+
 			this.logger.error(err);
 
 			throw err;
