@@ -8,10 +8,7 @@ export class CreateUserDto {
 	email: string;
 
 	@IsString()
-	firstName: string;
-
-	@IsString()
-	lastName: string;
+	name: string;
 
 	@IsBoolean()
 	@IsOptional()

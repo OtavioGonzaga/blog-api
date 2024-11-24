@@ -5,8 +5,14 @@
 import { Path } from "nestjs-i18n";
 /* prettier-ignore */
 export type I18nTranslations = {
+    "errors": {
+        "NOT_FOUND": string;
+    };
     "t": {
-        "HELLO_WORLD": string;
+        "USERS": {
+            "USERS": string;
+            "USER": string;
+        };
     };
     "validation": {
         "IS_STRING": string;
@@ -15,6 +21,7 @@ export type I18nTranslations = {
         "MAX_LENGTH": string;
         "MATCHES": string;
         "IS_ENUM": string;
+        "IS_UUID": string;
     };
 };
 /* prettier-ignore */

@@ -42,12 +42,12 @@ export class CreateTableUsers1732142326512 implements MigrationInterface {
 					},
 					{
 						name: 'created_at',
-						type: 'timestamp',
+						type: 'timestamp with time zone',
 						default: 'CURRENT_TIMESTAMP',
 					},
 					{
 						name: 'updated_at',
-						type: 'timestamp',
+						type: 'timestamp with time zone',
 						default: 'CURRENT_TIMESTAMP',
 						onUpdate: 'CURRENT_TIMESTAMP',
 					},

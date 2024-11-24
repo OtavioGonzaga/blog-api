@@ -1,8 +1,9 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { KeycloakService } from './keycloak.service';
-import { JwtService } from '@nestjs/jwt';
-import * as dotenv from 'dotenv';
 import { HttpStatus } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { Test, TestingModule } from '@nestjs/testing';
+import * as dotenv from 'dotenv';
+import { UserRoles } from 'src/users/enums/user-roles.enum';
+import { KeycloakService } from './keycloak.service';
 dotenv.config();
 
 describe('KeycloakService', () => {
@@ -21,25 +22,35 @@ describe('KeycloakService', () => {
 		expect(service).toBeDefined();
 	});
 
-	it('should generate a Keycloak token', async () => {
-		const token = await service.generateKeycloakToken();
-
-		expect(token).toBeDefined();
-		expect(typeof token).toBe('string');
-	});
-
 	it('should create a user in keycloak', async () => {
 		const response = await service.createUser({
 			username: 'newuser',
 			email: 'new-user@example.com',
-			firstName: 'New',
-			lastName: 'User',
+			name: 'new user',
 			enabled: true,
 		});
 
 		keycloakId = response.headers.location.split('/').pop();
 
 		expect(response.status).toBe(HttpStatus.CREATED);
+	});
+
+	it('should assign a role to user in keycloak', async () => {
+		const response = await service.assingUserRole(
+			keycloakId,
+			UserRoles.ADMIN,
+		);
+
+		expect(response.status).toBe(HttpStatus.NO_CONTENT);
+	});
+
+	it('should remove a role to user in keycloak', async () => {
+		const response = await service.removeUserRole(
+			keycloakId,
+			UserRoles.ADMIN,
+		);
+
+		expect(response.status).toBe(HttpStatus.NO_CONTENT);
 	});
 
 	it('should delete a user in keycloak', async () => {

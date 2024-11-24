@@ -1,3 +1,6 @@
 {
-	"HELLO_WORLD": "Olá, mundo"
+	"USERS": {
+		"USERS": "Usuários",
+		"USER": "Usuário"
+	}
 }

@@ -1,9 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import axios, { AxiosResponse } from 'axios';
-import { TokenResponseDto } from './dtos/token-response.dto';
 import { JwtService } from '@nestjs/jwt';
+import axios, { AxiosResponse } from 'axios';
 import { HttpMethod } from 'src/enums/http-methods.enum';
+import { UserRoles } from 'src/users/enums/user-roles.enum';
 import { CreateUserDto } from './dtos/create-user.dto';
+import { TokenResponseDto } from './dtos/token-response.dto';
+import { RequiredActions } from './enums/required-actions.enum';
 
 @Injectable()
 export class KeycloakService {
@@ -11,7 +13,7 @@ export class KeycloakService {
 
 	constructor(private readonly jwtService: JwtService) {}
 
-	public async generateKeycloakToken(): Promise<string> {
+	private async generateKeycloakToken(): Promise<string> {
 		const tokenResponse: AxiosResponse<TokenResponseDto, unknown> =
 			await axios.post(
 				`${process.env.KEYCLOAK_URL}/realms/${process.env.KEYCLOAK_REALM}/protocol/openid-connect/token`,
@@ -32,7 +34,7 @@ export class KeycloakService {
 		return tokenResponse.data.access_token;
 	}
 
-	async requestToKeycloak({
+	private async requestToKeycloak({
 		url,
 		method,
 		data,
@@ -61,29 +63,55 @@ export class KeycloakService {
 		});
 	}
 
-	async createUser({
-		username,
-		email,
-		firstName,
-		lastName,
-		enabled,
-	}: CreateUserDto) {
+	private async getRealmRoles() {
+		return (
+			await this.requestToKeycloak({
+				url: `${process.env.KEYCLOAK_URL}/admin/realms/${process.env.KEYCLOAK_REALM}/roles`,
+				method: HttpMethod.GET,
+			})
+		).data;
+	}
+
+	public async createUser({ username, email, name, enabled }: CreateUserDto) {
 		return await this.requestToKeycloak({
 			url: `${process.env.KEYCLOAK_URL}/admin/realms/${process.env.KEYCLOAK_REALM}/users`,
 			method: HttpMethod.POST,
 			data: {
+				attributes: { name },
 				username,
 				email,
-				firstName,
-				lastName,
 				enabled: enabled ?? true,
+				requiredActions: [RequiredActions.UPDATE_PASSWORD],
+				emailVerified: true,
 			},
 		});
 	}
 
-	async deleteUser(userId: string) {
+	public async assingUserRole(id: string, role: UserRoles) {
+		const roles: { id: string; name: string }[] =
+			await this.getRealmRoles();
+
 		return await this.requestToKeycloak({
-			url: `${process.env.KEYCLOAK_URL}/admin/realms/${process.env.KEYCLOAK_REALM}/users/${userId}`,
+			url: `${process.env.KEYCLOAK_URL}/admin/realms/${process.env.KEYCLOAK_REALM}/users/${id}/role-mappings/realm`,
+			method: HttpMethod.POST,
+			data: [roles.find((r) => r.name === role)],
+		});
+	}
+
+	public async removeUserRole(id: string, role: UserRoles) {
+		const roles: { id: string; name: string }[] =
+			await this.getRealmRoles();
+
+		return await this.requestToKeycloak({
+			url: `${process.env.KEYCLOAK_URL}/admin/realms/${process.env.KEYCLOAK_REALM}/users/${id}/role-mappings/realm`,
+			method: HttpMethod.DELETE,
+			data: [roles.find((r) => r.name === role)],
+		});
+	}
+
+	public async deleteUser(id: string) {
+		return await this.requestToKeycloak({
+			url: `${process.env.KEYCLOAK_URL}/admin/realms/${process.env.KEYCLOAK_REALM}/users/${id}`,
 			method: HttpMethod.DELETE,
 		});
 	}
