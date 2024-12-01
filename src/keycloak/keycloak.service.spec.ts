@@ -51,7 +51,7 @@ describe('KeycloakService', () => {
 
 	it('should remove a role to user in keycloak', async () => {
 		const response = await service.removeUserRole(
-			'd1938617-77b4-499a-97b5-0fb33e3248a0',
+			keycloakId,
 			UserRoles.ADMIN,
 		);
 

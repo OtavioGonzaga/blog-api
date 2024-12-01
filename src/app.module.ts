@@ -14,7 +14,6 @@ import {
 import { AcceptLanguageResolver, I18nModule, QueryResolver } from 'nestjs-i18n';
 import * as path from 'path';
 import { AppDataSource } from 'typeorm/data-source';
-import { AuthModule } from './auth/auth.module';
 import { PostsModule } from './posts/posts.module';
 import { UsersModule } from './users/users.module';
 
@@ -46,7 +45,6 @@ import { UsersModule } from './users/users.module';
 		TypeOrmModule.forRoot(AppDataSource.options),
 		JwtModule,
 		PostsModule,
-		AuthModule,
 	],
 	providers: [
 		{
