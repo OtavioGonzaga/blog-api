@@ -1,4 +1,5 @@
 {
 	"NOT_FOUND": "{entity} não encontrado(a)",
-	"ALREADY_EXISTS": "{entity} já existe"
+	"ALREADY_EXISTS": "{entity} já existe",
+	"NOT_AUTHENTICATED": "Usuário não autenticado"
 }

@@ -16,6 +16,7 @@ import * as path from 'path';
 import { AppDataSource } from 'typeorm/data-source';
 import { PostsModule } from './posts/posts.module';
 import { UsersModule } from './users/users.module';
+import { ProfileModule } from './profile/profile.module';
 
 @Module({
 	imports: [
@@ -28,7 +29,6 @@ import { UsersModule } from './users/users.module';
 			secret: process.env.KEYCLOAK_CLIENT_SECRET,
 			policyEnforcement: PolicyEnforcementMode.PERMISSIVE,
 			tokenValidation: TokenValidation.ONLINE,
-			useNestLogger: false,
 		}),
 		I18nModule.forRoot({
 			fallbackLanguage: 'en-US',
@@ -45,6 +45,7 @@ import { UsersModule } from './users/users.module';
 		TypeOrmModule.forRoot(AppDataSource.options),
 		JwtModule,
 		PostsModule,
+		ProfileModule,
 	],
 	providers: [
 		{

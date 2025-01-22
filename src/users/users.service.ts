@@ -79,35 +79,23 @@ export class UsersService {
 			});
 
 			try {
-				const promises = [];
-
 				if (role === UserRoles.ADMIN)
-					promises.push(
-						this.keycloakService.assingUserRole(
-							keycloakId,
-							UserRoles.ADMIN,
-						),
+					await this.keycloakService.assingUserRole(
+						keycloakId,
+						UserRoles.ADMIN,
 					);
 
-				promises.push(
-					this.keycloakService.sendExecuteActionsEmail(
-						newUser.keycloakId,
-						[
-							RequiredActions.UPDATE_PASSWORD,
-							RequiredActions.VERIFY_EMAIL,
-						],
-					),
+				await this.keycloakService.sendExecuteActionsEmail(
+					newUser.keycloakId,
+					[
+						RequiredActions.UPDATE_PASSWORD,
+						RequiredActions.VERIFY_EMAIL,
+					],
 				);
 
-				promises.push(this.usersRepository.save(newUser));
-
-				await Promise.all(promises);
-
-				return promises.pop();
+				return this.usersRepository.save(newUser);
 			} catch (error) {
 				this.keycloakService.deleteUser(keycloakId);
-
-				this.logger.error(error);
 
 				throw error;
 			}
@@ -121,8 +109,6 @@ export class UsersService {
 						args: { entity: this.i18n.t('t.USERS.USER') },
 					}),
 				);
-
-			this.logger.error(error);
 
 			this.logger.error(error);
 

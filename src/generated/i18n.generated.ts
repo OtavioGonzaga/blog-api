@@ -8,6 +8,7 @@ export type I18nTranslations = {
     "errors": {
         "NOT_FOUND": string;
         "ALREADY_EXISTS": string;
+        "NOT_AUTHENTICATED": string;
     };
     "t": {
         "USERS": {
