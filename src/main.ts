@@ -37,7 +37,12 @@ async function bootstrap() {
 	);
 	app.useGlobalFilters(new I18nValidationExceptionFilter());
 
-	app.enableCors();
+	app.enableCors({
+		origin: process.env.FRONTEND_URL,
+		methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+		preflightContinue: false,
+		optionsSuccessStatus: 204,
+	});
 
 	await app.listen(process.env.PORT ?? 3000);
 }
