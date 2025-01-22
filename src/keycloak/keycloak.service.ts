@@ -73,7 +73,7 @@ export class KeycloakService {
 		).data;
 	}
 
-	public async createUser({
+	public createUser({
 		username,
 		email,
 		name,
@@ -81,11 +81,15 @@ export class KeycloakService {
 		emailVerified,
 		requiredActions,
 	}: CreateUserDto) {
-		return await this.requestToKeycloak({
+		const firstName = name.split(' ')[0];
+		const lastName = name.split(' ')[1];
+
+		return this.requestToKeycloak({
 			url: `${process.env.KEYCLOAK_URL}/admin/realms/${process.env.KEYCLOAK_REALM}/users`,
 			method: HttpMethod.POST,
 			data: {
-				attributes: { name },
+				firstName,
+				lastName,
 				username,
 				email,
 				enabled: enabled ?? true,
@@ -96,11 +100,15 @@ export class KeycloakService {
 	}
 
 	public updateUser(id: string, { email, name }: UpdateUserDto) {
+		const firstName = name.split(' ')[0];
+		const lastName = name.split(' ')[1];
+
 		return this.requestToKeycloak({
 			url: `${process.env.KEYCLOAK_URL}/admin/realms/${process.env.KEYCLOAK_REALM}/users/${id}`,
 			method: HttpMethod.PUT,
 			data: {
-				attributes: { name },
+				firstName,
+				lastName,
 				email,
 			},
 		});
