@@ -12,7 +12,7 @@ export const KeycloakId = createParamDecorator(
 		const i18n = I18nContext.current<I18nTranslations>();
 
 		const request: Request = ctx.switchToHttp().getRequest();
-		const keycloakId: string | undefined = request.headers.sub.toString();
+		const keycloakId: string | undefined = request.headers.sub?.toString();
 
 		if (!keycloakId) {
 			throw new UnauthorizedException(i18n.t('errors.NOT_AUTHENTICATED'));

@@ -11,7 +11,12 @@ import {
 	RoleGuard,
 	TokenValidation,
 } from 'nest-keycloak-connect';
-import { AcceptLanguageResolver, I18nModule, QueryResolver } from 'nestjs-i18n';
+import {
+	AcceptLanguageResolver,
+	HeaderResolver,
+	I18nModule,
+	QueryResolver,
+} from 'nestjs-i18n';
 import * as path from 'path';
 import { AppDataSource } from 'typeorm/data-source';
 import { PostsModule } from './posts/posts.module';
@@ -38,7 +43,8 @@ import { ProfileModule } from './profile/profile.module';
 			},
 			typesOutputPath: path.join('src/generated/i18n.generated.ts'),
 			resolvers: [
-				{ use: QueryResolver, options: ['lang', 'locale'] },
+				new QueryResolver(['lang', 'locale']),
+				new HeaderResolver(['x-custom-lang']),
 				AcceptLanguageResolver,
 			],
 		}),
