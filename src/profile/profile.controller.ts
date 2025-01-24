@@ -1,5 +1,6 @@
 import {
 	Controller,
+	Delete,
 	FileTypeValidator,
 	Get,
 	HttpStatus,
@@ -9,6 +10,7 @@ import {
 	UploadedFile,
 	UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import {
 	ApiBearerAuth,
 	ApiBody,
@@ -23,7 +25,6 @@ import { KeycloakId } from 'src/decorators/user-id.decorator';
 import { I18nTranslations } from 'src/generated/i18n.generated';
 import { User } from 'src/users/entities/user.entity';
 import { ProfileService } from './profile.service';
-import { FileInterceptor } from '@nestjs/platform-express';
 
 @ApiTags('Profile')
 @Controller('profile')
@@ -39,7 +40,7 @@ export class ProfileController {
 		return this.profileService.get(keycloakId);
 	}
 
-	@Post('upload-picture')
+	@Post('picture')
 	@ApiOperation({ summary: 'Get user profile' })
 	@ApiResponse({ status: HttpStatus.OK, type: User })
 	@ApiConsumes('multipart/form-data')
@@ -75,10 +76,17 @@ export class ProfileController {
 			}),
 		)
 		picture: Express.Multer.File,
-	) {
+	): Promise<void> {
 		return this.profileService.uploadProfilePicture({
 			keycloakId,
 			picture,
 		});
+	}
+
+	@Delete('picture')
+	@ApiOperation({ summary: 'Delete user profile picture' })
+	@ApiResponse({ status: HttpStatus.OK, type: User })
+	deleteProfilePicture(@KeycloakId() keycloakId: string): Promise<void> {
+		return this.profileService.deleteProfilePicture(keycloakId);
 	}
 }

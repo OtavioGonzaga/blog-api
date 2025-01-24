@@ -4,7 +4,7 @@ import { I18nService } from 'nestjs-i18n';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { I18nTranslations } from 'src/generated/i18n.generated';
 import { User } from 'src/users/entities/user.entity';
-import { Repository } from 'typeorm';
+import { Repository, UpdateResult } from 'typeorm';
 
 @Injectable()
 export class ProfileService {
@@ -17,7 +17,7 @@ export class ProfileService {
 
 	private readonly logger = new Logger(ProfileService.name);
 
-	public get(keycloakId: string) {
+	public get(keycloakId: string): Promise<User> {
 		return this.usersRepository.findOneBy({ keycloakId });
 	}
 
@@ -27,7 +27,7 @@ export class ProfileService {
 	}: {
 		keycloakId: string;
 		user: Partial<Omit<User, 'id' | 'keycloakId' | 'email' | 'username'>>;
-	}) {
+	}): Promise<UpdateResult> {
 		return this.usersRepository.update({ keycloakId }, user);
 	}
 
@@ -37,12 +37,30 @@ export class ProfileService {
 	}: {
 		keycloakId: string;
 		picture: Express.Multer.File;
-	}) {
+	}): Promise<void> {
 		const response = await this.cloudinaryService.uploadFile(picture);
 
-		return this.update({
+		await this.deleteProfilePicture(keycloakId);
+
+		await this.update({
 			keycloakId,
 			user: { pictureUrl: response.secure_url },
 		});
+	}
+
+	public async deleteProfilePicture(keycloakId: string): Promise<void> {
+		const user = await this.get(keycloakId);
+
+		if (user.pictureUrl) {
+			const publicId = user.pictureUrl
+				.split('/')
+				.pop()
+				.split('?')[0]
+				.split('.')[0];
+
+			await this.cloudinaryService.deleteFile(publicId);
+
+			await this.update({ keycloakId, user: { pictureUrl: null } });
+		}
 	}
 }
