@@ -24,6 +24,7 @@ export type I18nTranslations = {
         "MATCHES": string;
         "IS_ENUM": string;
         "IS_UUID": string;
+        "MAX_FILE_SIZE": string;
     };
 };
 /* prettier-ignore */

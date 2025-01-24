@@ -5,5 +5,6 @@
 	"MAX_LENGTH": "O campo \"{property}\" com valor \"{value}\" deve ter no máximo {constraints.0} caracteres",
 	"MATCHES": "O campo \"{property}\" com valor \"{value}\" é inválida",
 	"IS_ENUM": "O campo \"{property}\" com valor \"{value}\" deve ser um dos seguintes valores: {constraints.0}",
-	"IS_UUID": "O campo \"{property}\" deve ser um UUID"
+	"IS_UUID": "O campo \"{property}\" deve ser um UUID",
+	"MAX_FILE_SIZE": "O campo \"{property}\" ultrapassa o tamho limite"
 }

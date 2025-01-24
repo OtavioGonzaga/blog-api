@@ -1,6 +1,6 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { UserRoles } from '../enums/user-roles.enum';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 @Entity('users')
 export class User {
@@ -27,6 +27,10 @@ export class User {
 	@ApiProperty({ enum: UserRoles })
 	@Column({ enum: UserRoles, default: 'standard' })
 	role: string;
+
+	@ApiPropertyOptional()
+	@Column('varchar', { length: 255, nullable: true, name: 'picture_url' })
+	pictureUrl?: string;
 
 	@ApiProperty()
 	@Column('timestamp with time zone', {

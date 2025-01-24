@@ -22,6 +22,7 @@ import { AppDataSource } from 'typeorm/data-source';
 import { PostsModule } from './posts/posts.module';
 import { UsersModule } from './users/users.module';
 import { ProfileModule } from './profile/profile.module';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
 
 @Module({
 	imports: [
@@ -52,6 +53,7 @@ import { ProfileModule } from './profile/profile.module';
 		JwtModule,
 		PostsModule,
 		ProfileModule,
+		CloudinaryModule,
 	],
 	providers: [
 		{

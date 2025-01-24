@@ -3,6 +3,7 @@ import {
 	ExecutionContext,
 	UnauthorizedException,
 } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import { I18nContext } from 'nestjs-i18n';
 import { I18nTranslations } from 'src/generated/i18n.generated';
@@ -12,12 +13,16 @@ export const KeycloakId = createParamDecorator(
 		const i18n = I18nContext.current<I18nTranslations>();
 
 		const request: Request = ctx.switchToHttp().getRequest();
-		const keycloakId: string | undefined = request.headers.sub?.toString();
+		const token = request.headers.authorization?.split(' ')[1];
 
-		if (!keycloakId) {
+		if (!token) {
 			throw new UnauthorizedException(i18n.t('errors.NOT_AUTHENTICATED'));
 		}
 
-		return keycloakId;
+		const jwtService = new JwtService();
+
+		const { sub } = jwtService.decode<{ sub: string }>(token);
+
+		return sub;
 	},
 );
