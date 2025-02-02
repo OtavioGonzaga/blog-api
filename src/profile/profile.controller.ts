@@ -1,4 +1,5 @@
 import {
+	Body,
 	Controller,
 	Delete,
 	FileTypeValidator,
@@ -6,6 +7,7 @@ import {
 	HttpStatus,
 	MaxFileSizeValidator,
 	ParseFilePipe,
+	Patch,
 	Post,
 	UploadedFile,
 	UseInterceptors,
@@ -25,6 +27,8 @@ import { KeycloakId } from 'src/decorators/user-id.decorator';
 import { I18nTranslations } from 'src/generated/i18n.generated';
 import { User } from 'src/users/entities/user.entity';
 import { ProfileService } from './profile.service';
+import { UpdateResult } from 'typeorm';
+import { UpdateProfileDto } from './dtos/update-profile.dto';
 
 @ApiTags('Profile')
 @Controller('profile')
@@ -88,5 +92,16 @@ export class ProfileController {
 	@ApiResponse({ status: HttpStatus.OK, type: User })
 	deleteProfilePicture(@KeycloakId() keycloakId: string): Promise<void> {
 		return this.profileService.deleteProfilePicture(keycloakId);
+	}
+
+	@Patch()
+	@ApiOperation({ summary: 'Update user profile' })
+	@ApiResponse({ status: HttpStatus.OK, type: User })
+	@ApiBody({ type: UpdateResult })
+	updateProfile(
+		@KeycloakId() keycloakId: string,
+		@Body() user: UpdateProfileDto,
+	): Promise<UpdateResult> {
+		return this.profileService.update({ keycloakId, user });
 	}
 }

@@ -6,7 +6,7 @@ import { AppModule } from './app.module';
 dotenv.config();
 
 async function bootstrap() {
-	const app = await NestFactory.create(AppModule);
+	const app = await NestFactory.create(AppModule, { cors: true });
 
 	const config = new DocumentBuilder()
 		.setTitle('Blog')
@@ -36,13 +36,6 @@ async function bootstrap() {
 		}),
 	);
 	app.useGlobalFilters(new I18nValidationExceptionFilter());
-
-	app.enableCors({
-		origin: process.env.FRONTEND_URL,
-		methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-		preflightContinue: false,
-		optionsSuccessStatus: 204,
-	});
 
 	await app.listen(process.env.PORT ?? 3000);
 }
