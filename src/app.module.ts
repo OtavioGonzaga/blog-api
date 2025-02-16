@@ -18,7 +18,7 @@ import {
 	QueryResolver,
 } from 'nestjs-i18n';
 import * as path from 'path';
-import { AppDataSource } from 'typeorm/data-source';
+import { AppDataSource } from 'src/typeorm/data-source';
 import { PostsModule } from './posts/posts.module';
 import { UsersModule } from './users/users.module';
 import { ProfileModule } from './profile/profile.module';
@@ -42,7 +42,10 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
 				path: path.join(__dirname, '/i18n/'),
 				watch: true,
 			},
-			typesOutputPath: path.join('src/generated/i18n.generated.ts'),
+			typesOutputPath: path.join(
+				__dirname,
+				'../src/generated/i18n.generated.ts',
+			),
 			resolvers: [
 				new QueryResolver(['lang', 'locale']),
 				new HeaderResolver(['x-custom-lang']),
