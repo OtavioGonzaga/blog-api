@@ -1,4 +1,4 @@
-node('master') {
+node("${NODE_LABEL}") {
     stage ('Checkout') {
         checkout scm
     }
